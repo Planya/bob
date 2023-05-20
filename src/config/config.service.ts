@@ -1,43 +1,43 @@
-import { TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { TypeOrmModuleOptions } from '@nestjs/typeorm'
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-require('dotenv').config();
+require('dotenv').config()
 
 class ConfigService {
   constructor(private env: { [k: string]: string | undefined }) {}
 
   private getValue(key: string, throwOnMissing = true): string {
-    const value = this.env[key];
+    const value = this.env[key]
     if (!value && throwOnMissing) {
-      throw new Error(`config error - missing env.${key}`);
+      throw new Error(`config error - missing env.${key}`)
     }
 
-    return value;
+    return value
   }
 
   public ensureValues(keys: string[]) {
-    keys.forEach((k) => this.getValue(k, true));
-    return this;
+    keys.forEach((k) => this.getValue(k, true))
+    return this
   }
 
   public getPrefix() {
-    return this.getValue('BOT_PREFIX', true);
+    return this.getValue('BOT_PREFIX', true)
   }
 
   public getPort() {
-    return this.getValue('PORT', true);
+    return this.getValue('PORT', true)
   }
 
   public getToken() {
     if (this.isProduction()) {
-      return this.getValue('PROD_TOKEN', true);
+      return this.getValue('PROD_TOKEN', true)
     } else {
-      return this.getValue('DEV_TOKEN', true);
+      return this.getValue('DEV_TOKEN', true)
     }
   }
 
   public getIp() {
-    return this.getValue('IP', true);
+    return this.getValue('IP', true)
   }
 
   public getLogChannel() {
@@ -53,12 +53,12 @@ class ConfigService {
   }
 
   public getApiKey() {
-    return this.getValue('YT_API_KEY', true);
+    return this.getValue('YT_API_KEY', true)
   }
 
   public isProduction() {
-    const mode = this.getValue('MODE', false);
-    return mode != 'DEV';
+    const mode = this.getValue('MODE', false)
+    return mode != 'DEV'
   }
 
   public getTypeOrmConfig(): TypeOrmModuleOptions {
@@ -71,7 +71,7 @@ class ConfigService {
       database: this.getValue('POSTGRES_DATABASE'),
       entities: ['dist/**/*.entity{.ts,.js}'],
       synchronize: true,
-    };
+    }
   }
 }
 
@@ -81,6 +81,6 @@ const configService = new ConfigService(process.env).ensureValues([
   'POSTGRES_USER',
   'POSTGRES_PASSWORD',
   'POSTGRES_DATABASE',
-]);
+])
 
-export { configService };
+export { configService }

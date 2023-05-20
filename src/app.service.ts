@@ -1,30 +1,31 @@
-import { Injectable } from '@nestjs/common';
-import { configService } from './config/config.service';
-import { Cron } from '@nestjs/schedule';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import TwitchApi from 'node-twitch';
-import { ChannelEntity } from './entities/channel.entity';
-import { ChannelDTO } from './dto/channel.dto';
-import { VideoEntity } from './entities/video.entity';
-import { VideoDTO } from './dto/video.dto';
-import { AnnouncementEntity } from './entities/announcement.entity';
-import { AnnouncementDTO } from './dto/announcement.dto';
-import { ReactEntity } from './entities/react.entity';
-import { ReactDTO } from './dto/react.dto';
-import * as moment from 'moment';
-import axios from 'axios';
-import config from './commands/config';
-import { ActivityType, AttachmentBuilder, EmbedBuilder } from 'discord.js';
-const { URLSearchParams } = require('url');
+import { Injectable } from '@nestjs/common'
+import { configService } from './config/config.service'
+import { Cron } from '@nestjs/schedule'
+import { InjectRepository } from '@nestjs/typeorm'
+import { Repository } from 'typeorm'
+import TwitchApi from 'node-twitch'
+import { ChannelEntity } from './entities/channel.entity'
+import { ChannelDTO } from './dto/channel.dto'
+import { VideoEntity } from './entities/video.entity'
+import { VideoDTO } from './dto/video.dto'
+import { AnnouncementEntity } from './entities/announcement.entity'
+import { AnnouncementDTO } from './dto/announcement.dto'
+import { ReactEntity } from './entities/react.entity'
+import { ReactDTO } from './dto/react.dto'
+import * as moment from 'moment'
+import axios from 'axios'
+import config from './commands/config'
+import { ActivityType, AttachmentBuilder, EmbedBuilder } from 'discord.js'
+const { URLSearchParams } = require('url')
 
 let lastStream = null
 
 @Injectable()
 export class AppService {
-  client: any;
-  api_key: string;
-  twitch: TwitchApi;
+  client: any
+  api_key: string
+  twitch: TwitchApi
+
   constructor(
     @InjectRepository(ChannelEntity)
     private channelRepository: Repository<ChannelEntity>,
@@ -45,7 +46,7 @@ export class AppService {
   }
 
   setClient(client: any) {
-    this.client = client;
+    this.client = client
   }
 
   checkChannel(
@@ -56,47 +57,47 @@ export class AppService {
       try {
         const channel: ChannelDTO = await this.channelRepository.findOne({
           where: { channel_id, server_id },
-        });
+        })
 
         if (channel) {
-          resolve({ status: 200, channel });
+          resolve({ status: 200, channel })
         } else {
-          resolve({ status: 400 });
+          resolve({ status: 400 })
         }
       } catch (error) {
-        console.log(error);
+        console.log(error)
       }
-    });
+    })
   }
 
   createChannel(channel: ChannelDTO): Promise<{ status: number }> {
     return new Promise(async (resolve, reject) => {
-      const channelRow: ChannelDTO = new ChannelEntity();
+      const channelRow: ChannelDTO = new ChannelEntity()
       Object.assign(channelRow, {
         ...channel,
-      });
+      })
 
       try {
         await this.channelRepository.save(
           this.channelRepository.create(channelRow),
-        );
-        resolve({ status: 200 });
+        )
+        resolve({ status: 200 })
       } catch (error) {
-        resolve({ status: 400 });
+        resolve({ status: 400 })
       }
-    });
+    })
   }
 
   saveChannel(channel: ChannelDTO): Promise<{ status: number }> {
     return new Promise(async (resolve, reject) => {
       try {
-        const channelRow: ChannelDTO = channel;
-        await this.channelRepository.save(channelRow);
-        resolve({ status: 200 });
+        const channelRow: ChannelDTO = channel
+        await this.channelRepository.save(channelRow)
+        resolve({ status: 200 })
       } catch (error) {
-        resolve({ status: 400 });
+        resolve({ status: 400 })
       }
-    });
+    })
   }
 
   deleteChannel(channel_id: string, server_id: string): Promise<{ status: number }> {
@@ -104,18 +105,18 @@ export class AppService {
       try {
         const channel: ChannelDTO = await this.channelRepository.findOne({
           where: { channel_id, server_id },
-        });
+        })
 
         if (channel) {
-          await this.channelRepository.delete(channel);
-          resolve({ status: 200 });
+          await this.channelRepository.delete(channel)
+          resolve({ status: 200 })
         } else {
-          resolve({ status: 400 });
+          resolve({ status: 400 })
         }
       } catch (error) {
-        console.log(error);
+        console.log(error)
       }
-    });
+    })
   }
 
   checkAnnouncement(
@@ -126,17 +127,17 @@ export class AppService {
       try {
         const announcement: AnnouncementDTO = await this.announcementRepository.findOne({
           where: { channel_id, server_id },
-        });
+        })
 
         if (announcement) {
-          resolve({ status: 200, announcement });
+          resolve({ status: 200, announcement })
         } else {
-          resolve({ status: 400 });
+          resolve({ status: 400 })
         }
       } catch (error) {
-        console.log(error);
+        console.log(error)
       }
-    });
+    })
   }
 
   createAnnouncement(announcement: AnnouncementDTO): Promise<{ status: number }> {
@@ -144,29 +145,29 @@ export class AppService {
       const announcementRow: AnnouncementDTO = new AnnouncementEntity();
       Object.assign(announcementRow, {
         ...announcement,
-      });
+      })
 
       try {
         await this.announcementRepository.save(
           this.announcementRepository.create(announcementRow),
-        );
-        resolve({ status: 200 });
+        )
+        resolve({ status: 200 })
       } catch (error) {
-        resolve({ status: 400 });
+        resolve({ status: 400 })
       }
-    });
+    })
   }
 
   saveAnnouncement(announcement: AnnouncementDTO): Promise<{ status: number }> {
     return new Promise(async (resolve, reject) => {
       try {
-        const announcementRow: AnnouncementDTO = announcement;
-        await this.announcementRepository.save(announcementRow);
-        resolve({ status: 200 });
+        const announcementRow: AnnouncementDTO = announcement
+        await this.announcementRepository.save(announcementRow)
+        resolve({ status: 200 })
       } catch (error) {
-        resolve({ status: 400 });
+        resolve({ status: 400 })
       }
-    });
+    })
   }
 
   deleteAnnouncement(channel_id: string, server_id: string): Promise<{ status: number }> {
@@ -174,18 +175,18 @@ export class AppService {
       try {
         const announcement: AnnouncementDTO = await this.announcementRepository.findOne({
           where: { channel_id, server_id },
-        });
+        })
 
         if (announcement) {
-          await this.announcementRepository.delete(announcement);
-          resolve({ status: 200 });
+          await this.announcementRepository.delete(announcement)
+          resolve({ status: 200 })
         } else {
-          resolve({ status: 400 });
+          resolve({ status: 400 })
         }
       } catch (error) {
-        console.log(error);
+        console.log(error)
       }
-    });
+    })
   }
 
   checkReact(
@@ -198,35 +199,35 @@ export class AppService {
       try {
         const react: ReactDTO = await this.reactRepository.findOne({
           where: { channel_id, message_id, emoji, role_id },
-        });
+        })
 
         if (react) {
-          resolve({ status: 200, react });
+          resolve({ status: 200, react })
         } else {
-          resolve({ status: 400 });
+          resolve({ status: 400 })
         }
       } catch (error) {
-        console.log(error);
+        console.log(error)
       }
-    });
+    })
   }
 
   createReact(react: ReactDTO): Promise<{ status: number }> {
     return new Promise(async (resolve, reject) => {
-      const reactRow: ReactDTO = new ReactEntity();
+      const reactRow: ReactDTO = new ReactEntity()
       Object.assign(reactRow, {
         ...react,
-      });
+      })
 
       try {
         await this.reactRepository.save(
           this.reactRepository.create(reactRow),
-        );
-        resolve({ status: 200 });
+        )
+        resolve({ status: 200 })
       } catch (error) {
-        resolve({ status: 400 });
+        resolve({ status: 400 })
       }
-    });
+    })
   }
 
   deleteReact(
@@ -239,23 +240,23 @@ export class AppService {
       try {
         const react: ReactDTO = await this.reactRepository.findOne({
           where: { channel_id, message_id, emoji, role_id },
-        });
+        })
 
         if (react) {
-          await this.reactRepository.delete(react);
-          resolve({ status: 200 });
+          await this.reactRepository.delete(react)
+          resolve({ status: 200 })
         } else {
-          resolve({ status: 400 });
+          resolve({ status: 400 })
         }
       } catch (error) {
-        console.log(error);
+        console.log(error)
       }
-    });
+    })
   }
 
   async getReacts(): Promise<ReactDTO[]> {
-    const data: ReactDTO[] = await this.reactRepository.find();
-    return data;
+    const data: ReactDTO[] = await this.reactRepository.find()
+    return data
   }
 
   clearGuildData(server_id: string): Promise<{ status: number }> {
@@ -268,37 +269,46 @@ export class AppService {
           .delete()
           .where({ server_id })
 
-        resolve({ status: 200 });
+        resolve({ status: 200 })
       } catch (error) {
-        console.log(error);
+        console.log(error)
       }
-    });
+    })
   }
 
   async sendBotEvent(video: VideoDTO) {
-    let eventType = 'video';
+    let eventType = 'video'
     if (video.stream && video.isLive) {
-      eventType = 'live';
+      eventType = 'live'
     } else if (video.stream && !video.isLive) {
-      eventType = 'announcement';
+      eventType = 'announcement'
     }
 
-    const videoId: string = video.videoId;
-    const url = config.dataUrls.youtubeOembed(videoId);
-    const videoUrl = config.dataUrls.youtubeVideo(videoId);
-    const dataOembed: any = (await axios.get(url)).data;
-    let msg = '';
+    const videoId: string = video.videoId
+    const url = config.dataUrls.youtubeOembed(videoId)
+    const videoUrl = config.dataUrls.youtubeVideo(videoId)
+    const dataOembed: any = (await axios.get(url)).data
+    let msg = ''
     if (eventType === 'announcement') {
-      msg = `📆 МСК ${moment(video.start_time).format('HH:mm DD.MM.YYYY')}\n📢 Анонс стрима - ${dataOembed.author_name}: ${videoUrl}`;
+      msg = `📆 МСК ${moment(video.start_time).format('HH:mm DD.MM.YYYY')}\n📢 Анонс стрима - ${dataOembed.author_name}`
     } else if (eventType === 'video') {
-      msg = `📺 ${dataOembed.author_name}\nВышло новое видео: ${videoUrl}`;
+      msg = `📺 ${dataOembed.author_name}\nВышло новое видео`
     } else {
-      msg = `🔴 ${dataOembed.author_name}\nСтрим начался: ${videoUrl}`;
+      msg = `🔴 ${dataOembed.author_name}\nСтрим начался`
       this.client.user.setActivity(`${dataOembed.author_name} - ${video.description}`, {
         type: ActivityType.Watching,
-      });
+      })
       lastStream = video.id
     }
+
+    const attachment = new AttachmentBuilder(dataOembed.thumbnail_url, { name: `${dataOembed.author_name}.jpg` })
+    const embed = new EmbedBuilder()
+      .setTitle(msg)
+      .setDescription(`<${videoUrl}>`)
+      .setImage(`attachment://${attachment.name}`)
+      .addFields(
+        { name: `${eventType === 'video' ? 'Видео' : 'Тема стрима'}`, value: `${dataOembed.title}`, inline: true }
+      )
 
     const guilds = await this.channelRepository.createQueryBuilder()
       .select('server_id')
@@ -311,18 +321,17 @@ export class AppService {
         where: { server_id: guild.server_id }
       })
 
-      let fMsg = msg
-      if (announcement.ping) {
-        fMsg = `@everyone\n${msg}`
-      }
-
       if (announcement) {
         this.client.channels
         .fetch(announcement.channel_id)
         .then((channel: any) => {
-          channel.send(fMsg);
+          channel.send({
+            content: announcement.ping ? '<:Charlotte_stare1:889519443426807829>  @everyone' : '<:Charlotte_stare1:889519443426807829> ',
+            embeds: [embed],
+            files: [attachment]
+          })
         })
-        .catch(console.error);
+        .catch(console.error)
       }
     }
   }
@@ -330,29 +339,29 @@ export class AppService {
   async getVideoInfo(videoId: string, channelId: string): Promise<any> {
     const videoObject: any = await this.videoRepository.find({
       where: [{ videoId: videoId }],
-    });
+    })
 
     if (videoObject.length === 0) {
       const vData: any = await axios.get(
         config.dataUrls.youtubeVideoInfo(videoId, config.yt_api_key),
-      );
+      )
 
       this.logData(vData, 'getVideoInfo')
 
       if (vData.data.items.length > 0) {
-        let isStream = false;
-        let isOffline = false;
+        let isStream = false
+        let isOffline = false
         if (vData.data.items[0].snippet.liveBroadcastContent === 'upcoming') {
-          isStream = true;
+          isStream = true
         } else if (
           vData.data.items[0].snippet.liveBroadcastContent === 'live'
         ) {
-          isStream = true;
-          isOffline = true;
+          isStream = true
+          isOffline = true
         }
 
         const itemThumbnails = vData.data.items[0].snippet.thumbnails
-        const newLive = new VideoEntity();
+        const newLive = new VideoEntity()
         Object.assign(newLive, {
           channel_id: channelId,
           videoId: videoId,
@@ -362,10 +371,10 @@ export class AppService {
           isLive: isOffline,
           stream: isStream,
           start_time: vData.data.items[0]?.liveStreamingDetails?.scheduledStartTime || null
-        });
+        })
 
-        await this.videoRepository.save(newLive);
-        await this.sendBotEvent(newLive);
+        await this.videoRepository.save(newLive)
+        await this.sendBotEvent(newLive)
       }
     }
   }
@@ -376,22 +385,22 @@ export class AppService {
       where: [
         { isLive: true, stream: true },
       ],
-    });
+    })
 
-    const ids = streams.map((m) => m.videoId).join(',');
-    let vData: any = [];
+    const ids = streams.map((m) => m.videoId).join(',')
+    let vData: any = []
 
     if (streams.length > 0) {
       const data: any = await axios.get(
         config.dataUrls.youtubeVideoInfo(ids, config.yt_api_key),
-      );
-      vData = data.data.items;
+      )
+      vData = data.data.items
     }
 
     for (const videoObject of vData) {
-      const dbVideoObject = streams.find((f) => f.videoId === videoObject.id);
+      const dbVideoObject = streams.find((f) => f.videoId === videoObject.id)
       if (dbVideoObject) {
-        const currentLive = new VideoEntity();
+        const currentLive = new VideoEntity()
         if (
           !dbVideoObject.isLive &&
           videoObject.snippet.liveBroadcastContent === 'live'
@@ -400,10 +409,10 @@ export class AppService {
           Object.assign(currentLive, {
             ...dbVideoObject,
             ...obj,
-          });
+          })
 
-          await this.videoRepository.save(currentLive);
-          await this.sendBotEvent(currentLive);
+          await this.videoRepository.save(currentLive)
+          await this.sendBotEvent(currentLive)
         } else if (
           dbVideoObject.isLive &&
           videoObject.snippet.liveBroadcastContent !== 'live'
@@ -412,13 +421,13 @@ export class AppService {
           Object.assign(currentLive, {
             ...dbVideoObject,
             ...obj,
-          });
+          })
 
           this.client.user.setActivity(config.bot.rpc, {
             type: ActivityType.Watching,
-          });
+          })
 
-          await this.videoRepository.save(currentLive);
+          await this.videoRepository.save(currentLive)
         } else if (
           dbVideoObject.isLive &&
           videoObject.snippet.liveBroadcastContent === 'live' &&
@@ -426,7 +435,7 @@ export class AppService {
         ) {
           this.client.user.setActivity(`${videoObject.snippet.channelTitle}. Зрители: ${videoObject?.liveStreamingDetails?.concurrentViewers}`, {
             type: ActivityType.Watching,
-          });
+          })
         }
       }
     }
@@ -442,9 +451,9 @@ export class AppService {
       .distinct(true)
       .getRawMany()
 
-    const requests = [];
+    const requests = []
     for (let i = 0; i < channels.length; i++) {
-      const url = 'https://pubsubhubbub.appspot.com/subscribe';
+      const url = 'https://pubsubhubbub.appspot.com/subscribe'
       const formData = new URLSearchParams({
         'hub.callback': config.dataUrls.callback,
         'hub.topic': `https://www.youtube.com/xml/feeds/videos.xml?channel_id=${channels[i].channel_id}`,
@@ -453,19 +462,19 @@ export class AppService {
         'hub.verify_token': '',
         'hub.secret': '',
         'hub.lease_seconds': '',
-      });
+      })
 
-      requests.push(axios.post(url, formData));
+      requests.push(axios.post(url, formData))
     }
 
     Promise.all(requests)
       .then(() => {
-        console.log('Обновлены подписки на каналы');
+        console.log('Обновлены подписки на каналы')
       })
       .catch((error) => {
         this.logData(error, 'autoUpdateSubs')
-        console.log(error);
-      });
+        console.log(error)
+      })
   }
 
   logData(data: any, logName?: string) {
@@ -474,7 +483,7 @@ export class AppService {
       .then((channel: any) => {
         channel.send(`${moment().format('DD.MM.YYYY HH:mm:ss')} LOG:${logName ? ` ${logName}\n` : '\n'}`+'```'+JSON.stringify(data)+'```');
       })
-      .catch(console.error);
+      .catch(console.error)
   }
 
   @Cron('0 * * * * *')
@@ -483,7 +492,7 @@ export class AppService {
       where: [
         { is_twitch: true },
       ],
-    });
+    })
 
     const filteredChannels = channels.filter((value, index, self) => {
       return self.findIndex(f => f.server_id === value.server_id) === index
@@ -544,21 +553,21 @@ export class AppService {
                   files: [attachment]
                 });
               })
-              .catch(console.error);
+              .catch(console.error)
             }
           }
         } else if (channel.is_live && (streamData?.data?.length && streamData.data[0].type === 'live')) {
           const stream = streamData.data[0]
           this.client.user.setActivity(`${stream.user_name}. Зрители: ${stream.viewer_count}`, {
             type: ActivityType.Watching,
-          });
+          })
         } else if (channel.is_live && (
           !streamData?.data?.length ||
           (streamData?.data?.length && streamData.data[0].type !== 'live')
         )) {
           this.client.user.setActivity(config.bot.rpc, {
             type: ActivityType.Watching,
-          });
+          })
           channel.is_live = false
           await this.saveChannel(channel)
         }

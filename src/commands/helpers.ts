@@ -1,5 +1,5 @@
-import { EmbedBuilder, ColorResolvable } from 'discord.js';
-import config from './config';
+import { EmbedBuilder, ColorResolvable } from 'discord.js'
+import config from './config'
 
 export function hasChannelEmbed(user) {
   const embedError = new EmbedBuilder()
@@ -20,8 +20,8 @@ export function hasChannelEmbed(user) {
         value: 'Удалить канал',
         inline: true,
       },
-    );
-  return embedError;
+    )
+  return embedError
 }
 
 export function hasReactionEmbed(user) {
@@ -44,34 +44,34 @@ export function hasReactionEmbed(user) {
         inline: true,
       },
     );
-  return embedError;
+  return embedError
 }
 
 export function setEmbedAuthor(embed, user) {
   embed.setAuthor({
     name: user.username,
     iconURL: user.avatarURL(),
-  });
-  return embed;
+  })
+  return embed
 }
 
 export function getTimeFromMins(mins: number) {
-  const hours = Math.trunc(mins / 60);
-  const minutes = Math.round(mins % 60);
-  return hours + 'ч. ' + minutes + 'м.';
+  const hours = Math.trunc(mins / 60)
+  const minutes = Math.round(mins % 60)
+  return hours + 'ч. ' + minutes + 'м.'
 }
 
 export function randomIntFromInterval(min, max) {
-  return Math.floor(Math.random() * (max - min + 1) + min);
+  return Math.floor(Math.random() * (max - min + 1) + min)
 }
 
 export function capitalize(string) {
-  return string.charAt(0).toUpperCase() + string.slice(1);
+  return string.charAt(0).toUpperCase() + string.slice(1)
 }
 
 export function abbreviateNumber(value: number) {
   return Intl.NumberFormat('ru-RU', {
     notation: 'compact',
     maximumFractionDigits: 1,
-  }).format(value);
+  }).format(value)
 }

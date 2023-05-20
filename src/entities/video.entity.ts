@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, Unique, CreateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, Unique, CreateDateColumn } from 'typeorm'
 
 @Entity()
 @Unique('unique_video', ['videoId'])

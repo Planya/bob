@@ -1,4 +1,4 @@
-import { configService } from './../config/config.service';
+import { configService } from './../config/config.service'
 
 export default {
   bot: {
@@ -35,4 +35,4 @@ export default {
     },
     callback: `http://${configService.getIp()}:${configService.getPort()}`,
   },
-};
+}
