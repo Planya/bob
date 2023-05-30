@@ -56,6 +56,10 @@ class ConfigService {
     return this.getValue('YT_API_KEY', true)
   }
 
+  public getRadio() {
+    return this.getValue('RADIO', false)
+  }
+
   public isProduction() {
     const mode = this.getValue('MODE', false)
     return mode != 'DEV'

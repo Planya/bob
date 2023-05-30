@@ -4,7 +4,7 @@ export default {
   bot: {
     token: configService.getToken(),
     prefix: configService.isProduction() ? configService.getPrefix() : '.', // префикс бота prod/dev
-    rpc: configService.isProduction() ? '/ᐠ｡ꞈ｡ᐟ\\' : 'DEBUG mode',
+    rpc: configService.isProduction() ? 'Helheim Radio /ᐠ｡ꞈ｡ᐟ\\' : 'DEBUG mode',
     badgeColor: '#f5222d',
   },
   yt_api_key: configService.getApiKey(),

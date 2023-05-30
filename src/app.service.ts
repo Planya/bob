@@ -307,7 +307,8 @@ export class AppService {
       .setDescription(`<${videoUrl}>`)
       .setImage(`attachment://${attachment.name}`)
       .addFields(
-        { name: `${eventType === 'video' ? 'Видео' : 'Тема стрима'}`, value: `${dataOembed.title}`, inline: true }
+        { name: `${eventType === 'video' ? 'Видео' : 'Тема стрима'}`, value: `${dataOembed.title}`, inline: true },
+        { name: `${eventType === 'video' ? 'Тема' : 'Игра'}`, value: `Если б я знал /ᐠ｡ꞈ｡ᐟ\\`, inline: true }
       )
 
     const guilds = await this.channelRepository.createQueryBuilder()
@@ -424,7 +425,7 @@ export class AppService {
           })
 
           this.client.user.setActivity(config.bot.rpc, {
-            type: ActivityType.Watching,
+            type: ActivityType.Listening,
           })
 
           await this.videoRepository.save(currentLive)
@@ -540,7 +541,7 @@ export class AppService {
               .setImage(`attachment://${attachment.name}`)
               .addFields(
                 { name: 'Тема стрима', value: `${stream.title}`, inline: true },
-                { name: 'Игра', value: `${stream.game_name ? stream.game_name : '❌'}`, inline: true }
+                { name: 'Игра', value: `${stream.game_name ? stream.game_name : 'Если б я знал /ᐠ｡ꞈ｡ᐟ\\'}`, inline: true }
               )
       
             if (announcement) {

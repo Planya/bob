@@ -1,6 +1,6 @@
 {
   "name": "ds-yt-announcer",
-  "version": "0.0.37",
+  "version": "0.0.38",
   "description": "Discord bot, YouTube live/video announcer",
   "author": "aSpectro",
   "private": true,
@@ -31,6 +31,7 @@
     "@nestjs/schedule": "^2.1.0",
     "@nestjs/typeorm": "^9.0.1",
     "axios": "^0.27.2",
+    "canvas": "^2.11.2",
     "discord.js": "^14.7.1",
     "express-xml-bodyparser": "^0.3.0",
     "fast-xml-parser": "^4.0.10",

@@ -11,6 +11,8 @@ import * as xmlparser from 'express-xml-bodyparser'
 
 import { AppService } from './app.service'
 import { AppModule } from './app.module'
+import { LiveService } from './live/live.service'
+import { LiveModule } from './live/live.module'
 
 import { configService } from './config/config.service'
 import config from './commands/config'
@@ -141,4 +143,13 @@ async function App() {
   }
 }
 
+async function Live() {
+  const app = await NestFactory.create(LiveModule)
+  await app.listen(parseInt(configService.getPort()) + 1)
+  const service = app.get<LiveService>(LiveService)
+
+  service.init()
+}
+
 App()
+Live()
