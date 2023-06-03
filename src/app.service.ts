@@ -259,7 +259,7 @@ export class AppService {
     return data
   }
 
-  clearGuildData(server_id: string): Promise<{ status: number }> {
+  clearGuildData(server_id: string): any {
     return new Promise(async (resolve, reject) => {
       try {
         await this.channelRepository.createQueryBuilder()
@@ -343,39 +343,44 @@ export class AppService {
     })
 
     if (videoObject.length === 0) {
-      const vData: any = await axios.get(
-        config.dataUrls.youtubeVideoInfo(videoId, config.yt_api_key),
-      )
-
-      this.logData(vData, 'getVideoInfo')
-
-      if (vData.data.items.length > 0) {
-        let isStream = false
-        let isOffline = false
-        if (vData.data.items[0].snippet.liveBroadcastContent === 'upcoming') {
-          isStream = true
-        } else if (
-          vData.data.items[0].snippet.liveBroadcastContent === 'live'
-        ) {
-          isStream = true
-          isOffline = true
+      try {
+        const vData: any = await axios.get(
+          config.dataUrls.youtubeVideoInfo(videoId, config.yt_api_key),
+        )
+  
+        this.logData(vData, 'getVideoInfo')
+  
+        if (vData.data.items.length > 0) {
+          let isStream = false
+          let isOffline = false
+          if (vData.data.items[0].snippet.liveBroadcastContent === 'upcoming') {
+            isStream = true
+          } else if (
+            vData.data.items[0].snippet.liveBroadcastContent === 'live'
+          ) {
+            isStream = true
+            isOffline = true
+          }
+  
+          const itemThumbnails = vData.data.items[0].snippet.thumbnails
+          const newLive = new VideoEntity()
+          Object.assign(newLive, {
+            channel_id: channelId,
+            videoId: videoId,
+            url: config.dataUrls.youtubeVideo(videoId),
+            description: vData.data.items[0].snippet.title,
+            image: itemThumbnails.standard.url,
+            isLive: isOffline,
+            stream: isStream,
+            start_time: vData.data.items[0]?.liveStreamingDetails?.scheduledStartTime || null
+          })
+  
+          await this.videoRepository.save(newLive)
+          await this.sendBotEvent(newLive)
         }
-
-        const itemThumbnails = vData.data.items[0].snippet.thumbnails
-        const newLive = new VideoEntity()
-        Object.assign(newLive, {
-          channel_id: channelId,
-          videoId: videoId,
-          url: config.dataUrls.youtubeVideo(videoId),
-          description: vData.data.items[0].snippet.title,
-          image: itemThumbnails.standard.url,
-          isLive: isOffline,
-          stream: isStream,
-          start_time: vData.data.items[0]?.liveStreamingDetails?.scheduledStartTime || null
-        })
-
-        await this.videoRepository.save(newLive)
-        await this.sendBotEvent(newLive)
+      } catch (error) {
+        console.error(error)
+        this.logData(error, 'getVideoInfo')
       }
     }
   }

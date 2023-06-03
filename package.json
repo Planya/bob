@@ -1,6 +1,6 @@
 {
-  "name": "ds-yt-announcer",
-  "version": "0.0.38",
+  "name": "bob",
+  "version": "0.0.39",
   "description": "Discord bot, YouTube live/video announcer",
   "author": "aSpectro",
   "private": true,
