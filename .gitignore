@@ -29,6 +29,7 @@ lerna-debug.log*
 .env
 *.sql
 start-db.sh
+*.Identifier
 
 # IDE - VSCode
 .vscode/*

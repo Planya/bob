@@ -538,7 +538,7 @@ export class AppService {
 
             this.client.user.setActivity(`${channelName}. Зрители: ${stream.viewer_count}`, {
               type: ActivityType.Watching,
-            });
+            })
 
             const embed = new EmbedBuilder()
               .setTitle(msg)
@@ -557,7 +557,7 @@ export class AppService {
                   content: announcement.ping ? '<:heart:887417941564481536> @everyone' : '<:heart:887417941564481536>',
                   embeds: [embed],
                   files: [attachment]
-                });
+                })
               })
               .catch(console.error)
             }

@@ -1,6 +1,6 @@
 {
   "name": "bob",
-  "version": "0.0.39",
+  "version": "0.0.40",
   "description": "Discord bot, YouTube live/video announcer",
   "author": "aSpectro",
   "private": true,
@@ -32,6 +32,7 @@
     "@nestjs/typeorm": "^9.0.1",
     "axios": "^0.27.2",
     "canvas": "^2.11.2",
+    "decimal.js": "^10.4.3",
     "discord.js": "^14.7.1",
     "express-xml-bodyparser": "^0.3.0",
     "fast-xml-parser": "^4.0.10",
