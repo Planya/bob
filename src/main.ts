@@ -17,9 +17,6 @@ import {
   clientReadyHandler
 } from './app.handlers'
 
-import { LiveService } from './live/live.service'
-import { LiveModule } from './live/live.module'
-
 import { configService } from './config/config.service'
 import config from './commands/config'
 import CommandList from './commands'
@@ -67,20 +64,8 @@ async function App() {
   }
 }
 
-/**
- * Модуль радио
- */
-async function Live() {
-  const app = await NestFactory.create(LiveModule)
-  await app.listen(parseInt(configService.getPort()) + 1)
-  const service = app.get<LiveService>(LiveService)
-
-  service.init()
-}
-
 function init() {
   App()
-  if (configService.getRadio()) Live()
 }
 
 init()

@@ -49,7 +49,7 @@ const gameData: GameData = {
 }
 
 @Entity()
-@Unique('unique_player', ['user_id'])
+@Unique('unique_player', ['discord_id'])
 export class Player {
   @PrimaryGeneratedColumn('uuid')
   id: string

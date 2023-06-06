@@ -20,11 +20,18 @@ const { URLSearchParams } = require('url')
 
 let lastStream = null
 
+export interface StreamMeta {
+  title: string
+  channel: string
+  viewers: number
+}
+
 @Injectable()
 export class AppService {
   client: any
   api_key: string
   twitch: TwitchApi
+  activeStreams: Map<string, StreamMeta>
 
   constructor(
     @InjectRepository(ChannelEntity)
@@ -43,10 +50,17 @@ export class AppService {
       client_id: configService.getTWClient(),
       client_secret: configService.getTWSecret()
     })
+    this.activeStreams = new Map()
   }
 
   setClient(client: any) {
     this.client = client
+  }
+
+  async getTwitchStreams(): Promise<{
+    [k: string]: StreamMeta;
+  }> {
+    return Object.fromEntries(this.activeStreams)
   }
 
   checkChannel(
@@ -494,20 +508,24 @@ export class AppService {
 
   @Cron('0 * * * * *')
   async checkTwitchChannels() {
-    const channels: ChannelDTO[] = await this.channelRepository.find({
-      where: [
-        { is_twitch: true },
-      ],
-    })
+    const channels: ChannelDTO[] = await this.channelRepository.createQueryBuilder()
+      .select('*')
+      .where('is_twitch = :twitch', { twitch: true })
+      .distinctOn(['channel_id'])
+      .getRawMany()
 
-    const filteredChannels = channels.filter((value, index, self) => {
-      return self.findIndex(f => f.server_id === value.server_id) === index
-    })
-
-    for (const channel of filteredChannels) {
+    for (const channel of channels) {
       try {
         const streamData = await this.twitch.getStreams({ channel: channel.channel_id })
+
         if (!channel.is_live && streamData?.data?.length && streamData.data[0].type === 'live') {
+          const { user_login, user_name, title, viewer_count, game_name, getThumbnailUrl } = streamData.data[0]
+          this.activeStreams.set(user_name, {
+            title: title,
+            channel: user_name,
+            viewers: viewer_count
+          })
+
           if (channel.last_live_date) {
             const d1 = moment(channel.last_live_date)
             const d2 = moment(new Date())
@@ -516,37 +534,36 @@ export class AppService {
             if (diff < needDiff) return
           }
 
-          const stream = streamData.data[0]
-          const channelName = stream.user_name
           const guilds = await this.channelRepository.createQueryBuilder()
             .select('server_id')
             .where({ channel_id: channel.channel_id })
             .distinct(true)
             .getRawMany()
-          for (const guild of guilds) {
+
+          for (const { server_id } of guilds) {
             const announcement: AnnouncementDTO = await this.announcementRepository.findOne({
-              where: { server_id: guild.server_id }
+              where: { server_id }
             })
-      
-            const msg = `🔴 ${channelName} в эфире на Twitch!`
-            const imageUrl = stream.getThumbnailUrl()
-            const attachment = new AttachmentBuilder(imageUrl, { name: `${channelName}.jpg` })
+
+            const msg = `🔴 ${user_name} в эфире на Twitch!`
+            const imageUrl = getThumbnailUrl()
+            const attachment = new AttachmentBuilder(imageUrl, { name: `${user_name}.jpg` })
 
             channel.is_live = true
             channel.last_live_date = new Date()
             await this.saveChannel(channel)
 
-            this.client.user.setActivity(`${channelName}. Зрители: ${stream.viewer_count}`, {
+            this.client.user.setActivity(`${user_name}. Зрители: ${viewer_count}`, {
               type: ActivityType.Watching,
             })
 
             const embed = new EmbedBuilder()
               .setTitle(msg)
-              .setDescription(`<https://www.twitch.tv/${stream.user_login}>`)
+              .setDescription(`<https://www.twitch.tv/${user_login}>`)
               .setImage(`attachment://${attachment.name}`)
               .addFields(
-                { name: 'Тема стрима', value: `${stream.title}`, inline: true },
-                { name: 'Игра', value: `${stream.game_name ? stream.game_name : 'Если б я знал /ᐠ｡ꞈ｡ᐟ\\'}`, inline: true }
+                { name: 'Тема стрима', value: `${title}`, inline: true },
+                { name: 'Игра', value: `${game_name ? game_name : 'Если б я знал /ᐠ｡ꞈ｡ᐟ\\'}`, inline: true }
               )
       
             if (announcement) {
@@ -563,14 +580,21 @@ export class AppService {
             }
           }
         } else if (channel.is_live && (streamData?.data?.length && streamData.data[0].type === 'live')) {
-          const stream = streamData.data[0]
-          this.client.user.setActivity(`${stream.user_name}. Зрители: ${stream.viewer_count}`, {
+          const { user_name, title, viewer_count } = streamData.data[0]
+          this.activeStreams.set(user_name, {
+            title: title,
+            channel: user_name,
+            viewers: viewer_count
+          })
+          this.client.user.setActivity(`${user_name}. Зрители: ${viewer_count}`, {
             type: ActivityType.Watching,
           })
         } else if (channel.is_live && (
           !streamData?.data?.length ||
           (streamData?.data?.length && streamData.data[0].type !== 'live')
         )) {
+          const { user_name } = streamData.data[0]
+          this.activeStreams.delete(user_name)
           this.client.user.setActivity(config.bot.rpc, {
             type: ActivityType.Watching,
           })

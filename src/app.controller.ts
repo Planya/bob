@@ -11,6 +11,11 @@ export class AppController {
     return query['hub.challenge']
   }
 
+  @Get('/streams')
+  async getStreams(): Promise<any> {
+    return await this.appService.getTwitchStreams()
+  }
+
   @Post()
   async postPush(@Req() request: any): Promise<any> {
     const parser = new XMLParser()
