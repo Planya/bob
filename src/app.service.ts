@@ -596,7 +596,7 @@ export class AppService {
           const { user_name } = streamData.data[0]
           this.activeStreams.delete(user_name)
           this.client.user.setActivity(config.bot.rpc, {
-            type: ActivityType.Watching,
+            type: ActivityType.Listening,
           })
           channel.is_live = false
           await this.saveChannel(channel)
