@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Req, Query } from '@nestjs/common'
+import { Controller, Get, Post, Req, Query, Res } from '@nestjs/common'
 import { XMLParser } from 'fast-xml-parser'
 import { AppService } from './app.service'
 
@@ -12,7 +12,8 @@ export class AppController {
   }
 
   @Get('/streams')
-  async getStreams(): Promise<any> {
+  async getStreams(@Res() res): Promise<any> {
+    res.set('Access-Control-Allow-Origin', '*')
     return await this.appService.getTwitchStreams()
   }
 
