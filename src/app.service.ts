@@ -593,8 +593,7 @@ export class AppService {
           !streamData?.data?.length ||
           (streamData?.data?.length && streamData.data[0].type !== 'live')
         )) {
-          const { user_name } = streamData.data[0]
-          this.activeStreams.delete(user_name)
+          this.activeStreams.delete(channel.channel_id)
           this.client.user.setActivity(config.bot.rpc, {
             type: ActivityType.Listening,
           })

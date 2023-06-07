@@ -129,7 +129,7 @@ export const clientReadyHandler = async (
   client: ClientModel
 ) => {
   client.user.setActivity(config.bot.rpc, {
-    type: ActivityType.Watching,
+    type: ActivityType.Listening,
   })
 
   // кэшируем все сообщения где слушаются реакции
