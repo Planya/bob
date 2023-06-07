@@ -105,8 +105,11 @@ export class AppService {
   saveChannel(channel: ChannelDTO): Promise<{ status: number }> {
     return new Promise(async (resolve, reject) => {
       try {
-        const channelRow: ChannelDTO = channel
-        await this.channelRepository.save(channelRow)
+        await this.channelRepository.createQueryBuilder()
+          .update()
+          .set({ is_live: channel.is_live, last_live_date: channel.last_live_date })
+          .where(`channel_id = :channelId`, { channelId: channel.channel_id })
+          .execute()
         resolve({ status: 200 })
       } catch (error) {
         resolve({ status: 400 })
@@ -534,37 +537,37 @@ export class AppService {
             if (diff < needDiff) return
           }
 
+          channel.is_live = true
+          channel.last_live_date = new Date()
+          await this.saveChannel(channel)
+
           const guilds = await this.channelRepository.createQueryBuilder()
             .select('server_id')
             .where({ channel_id: channel.channel_id })
             .distinct(true)
             .getRawMany()
 
+          const msg = `🔴 ${user_name} в эфире на Twitch!`
+          const imageUrl = getThumbnailUrl()
+          const attachment = new AttachmentBuilder(imageUrl, { name: `${user_name}.jpg` })
+
+          this.client.user.setActivity(`${user_name}. Зрители: ${viewer_count}`, {
+            type: ActivityType.Watching,
+          })
+
+          const embed = new EmbedBuilder()
+            .setTitle(msg)
+            .setDescription(`<https://www.twitch.tv/${user_login}>`)
+            .setImage(`attachment://${attachment.name}`)
+            .addFields(
+              { name: 'Тема стрима', value: `${title}`, inline: true },
+              { name: 'Игра', value: `${game_name ? game_name : 'Если б я знал /ᐠ｡ꞈ｡ᐟ\\'}`, inline: true }
+            )
+
           for (const { server_id } of guilds) {
             const announcement: AnnouncementDTO = await this.announcementRepository.findOne({
               where: { server_id }
             })
-
-            const msg = `🔴 ${user_name} в эфире на Twitch!`
-            const imageUrl = getThumbnailUrl()
-            const attachment = new AttachmentBuilder(imageUrl, { name: `${user_name}.jpg` })
-
-            channel.is_live = true
-            channel.last_live_date = new Date()
-            await this.saveChannel(channel)
-
-            this.client.user.setActivity(`${user_name}. Зрители: ${viewer_count}`, {
-              type: ActivityType.Watching,
-            })
-
-            const embed = new EmbedBuilder()
-              .setTitle(msg)
-              .setDescription(`<https://www.twitch.tv/${user_login}>`)
-              .setImage(`attachment://${attachment.name}`)
-              .addFields(
-                { name: 'Тема стрима', value: `${title}`, inline: true },
-                { name: 'Игра', value: `${game_name ? game_name : 'Если б я знал /ᐠ｡ꞈ｡ᐟ\\'}`, inline: true }
-              )
       
             if (announcement) {
               this.client.channels
