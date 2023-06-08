@@ -386,7 +386,7 @@ export class AppService {
             videoId: videoId,
             url: config.dataUrls.youtubeVideo(videoId),
             description: vData.data.items[0].snippet.title,
-            image: itemThumbnails.standard.url,
+            image: itemThumbnails?.standard?.url ?? 'no_image',
             isLive: isOffline,
             stream: isStream,
             start_time: vData.data.items[0]?.liveStreamingDetails?.scheduledStartTime || null
