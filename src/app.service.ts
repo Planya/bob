@@ -318,7 +318,7 @@ export class AppService {
       lastStream = video.id
     }
 
-    const attachment = new AttachmentBuilder(dataOembed.thumbnail_url, { name: `${dataOembed.author_name}.jpg` })
+    const attachment = new AttachmentBuilder(dataOembed.thumbnail_url, { name: `preview.jpg` })
     const embed = new EmbedBuilder()
       .setTitle(msg)
       .setDescription(`<${videoUrl}>`)
@@ -504,7 +504,9 @@ export class AppService {
     this.client.channels
       .fetch(configService.getLogChannel())
       .then((channel: any) => {
-        channel.send(`${moment().format('DD.MM.YYYY HH:mm:ss')} LOG:${logName ? ` ${logName}\n` : '\n'}`+'```'+JSON.stringify(data)+'```');
+        const dataString = typeof data !== 'string' ? JSON.stringify(data) : data
+        const datetime = moment().format('DD.MM.YYYY HH:mm:ss')
+        channel.send(`${datetime} LOG:${logName ? ` ${logName}\n` : '\n'}`+'```'+dataString+'```')
       })
       .catch(console.error)
   }
@@ -549,7 +551,7 @@ export class AppService {
 
           const msg = `🔴 ${user_name} в эфире на Twitch!`
           const imageUrl = getThumbnailUrl()
-          const attachment = new AttachmentBuilder(imageUrl, { name: `${user_name}.jpg` })
+          const attachment = new AttachmentBuilder(imageUrl, { name: `preview.jpg` })
 
           this.client.user.setActivity(`${user_name}. Зрители: ${viewer_count}`, {
             type: ActivityType.Watching,
