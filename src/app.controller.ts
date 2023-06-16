@@ -1,5 +1,6 @@
 import { Controller, Get, Post, Req, Query, Header } from '@nestjs/common'
 import { XMLParser } from 'fast-xml-parser'
+import moment from 'moment'
 import { AppService } from './app.service'
 
 @Controller()
@@ -36,6 +37,8 @@ export class AppController {
     }
 
     if (!dataNormalize?.feed?.entry?.videoId) return 'OK'
+    const { published, updated } = dataNormalize.feed.entry
+    if (!moment(published).startOf('day').isSame(moment(updated).startOf('day'))) return 'OK'
 
     try {
       await this.appService.getVideoInfo(
