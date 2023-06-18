@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Req, Query, Header } from '@nestjs/common'
 import { XMLParser } from 'fast-xml-parser'
-import moment from 'moment'
+import * as moment from 'moment'
 import { AppService } from './app.service'
 
 @Controller()
